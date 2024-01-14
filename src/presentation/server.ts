@@ -1,20 +1,38 @@
-import { CronJob } from "cron";
+
+import { CheckService } from "../domain/use-cases/checks/check-service";
+import { CronService } from "./cron/cron-service";
 
 export class Server {
     
     static start() {
 
-        const job = new CronJob(
-            '*/2 * * * * *', // cronTime
+        CronService.createJob(
+            '*/5 * * * * *',
+            () => {
+                const url = 'https://google.com'
+                new CheckService(
+                    () => console.log(`${url} está OK`),
+                    ( error ) => console.log(error)
+                ).execute(url);
+                //new CheckService().execute('http://localhost:3000');
+            }
+        );
+
+        CronService.createJob(
+            '*/2 * * * * *',
             () => {
                 const date = new Date();
-                console.log('You will see this message every 2 seconds ',date);
-            }, // onTick
-            null, // onComplete
-            true, // start
-            'America/Los_Angeles' // timeZone
+                console.log('2 seconds tick ', date);
+            }
         );
-        job.start();
+
+        CronService.createJob(
+            '*/4 * * * * *',
+            () => {
+                const date = new Date();
+                console.log('4 seconds tick ', date);
+            }
+        );
 
     }
 }
